@@ -1,0 +1,64 @@
+USE master;
+
+IF DB_ID('MyStableV2') IS NULL
+BEGIN
+	CREATE DATABASE MyStableV2
+END
+
+go
+USE MyStableV2;
+
+CREATE TABLE [User] (
+	UserID INT IDENTITY PRIMARY KEY,
+	Firstname NVARCHAR(50),
+	Lastname NVARCHAR(50),
+	Username NVARCHAR(50) UNIQUE,
+	Email NVARCHAR(255) UNIQUE,
+	Biography NVARCHAR(255),
+	Created_At DATETIME DEFAULT GetDate(),
+	Removed_At DATETIME,
+	Avatar NVARCHAR(255)
+);
+
+CREATE TABLE Stable (
+	StableID INT IDENTITY PRIMARY KEY,
+	Name NVARCHAR(50) UNIQUE,
+	Biography NVARCHAR(255),
+	Owner INT,
+
+	FOREIGN KEY (Owner) REFERENCES [User](UserID) ON DELETE SET NULL
+);
+
+CREATE TABLE Stable_Members (
+	[User] INT,
+	Stable INT,
+	Joined_At DATETIME DEFAULT GetDate(),
+
+	PRIMARY KEY ([User], Stable),
+	FOREIGN KEY ([User]) REFERENCES [User](UserID) ON DELETE CASCADE,
+	FOREIGN KEY (Stable) REFERENCES Stable(StableID) ON DELETE CASCADE
+);
+
+CREATE TABLE User_Request (
+	[User] INT,
+	Stable INT,
+	Created_At DATETIME DEFAULT GetDate(),
+
+	PRIMARY KEY ([User], Stable),
+	FOREIGN KEY ([User]) REFERENCES [User](UserID) ON DELETE CASCADE,
+	FOREIGN KEY (Stable) REFERENCES Stable(StableID) ON DELETE CASCADE
+);
+
+CREATE TABLE Stable_Invite (
+	[User] INT,
+	Stable INT,
+	Created_At DATETIME DEFAULT GetDate(),
+
+	PRIMARY KEY ([User], Stable),
+	FOREIGN KEY ([User]) REFERENCES [User](UserID) ON DELETE CASCADE,
+	FOREIGN KEY (Stable) REFERENCES Stable(StableID) ON DELETE CASCADE
+);
+
+CREATE TABLE Hej (
+	Test nvarchar(50) primary key
+);
