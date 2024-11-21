@@ -73,14 +73,14 @@ namespace api.Controllers
             CreateUserRequestValidator validator = new CreateUserRequestValidator();
             ValidationResult result = validator.Validate(requestBody);
 
-            //if (!result.IsValid)
-            //{
-            //    foreach (var failure in result.Errors)
-            //    {
+            if (!result.IsValid)
+            {
+                foreach (var failure in result.Errors)
+                {
 
-            //    }
-            //    return BadRequest(new ProblemDetails { Title = "Bad request", Detail = "The request body is invalid.", Status = StatusCodes.Status400BadRequest });
-            //}
+                }
+                return BadRequest(new ProblemDetails { Title = "Bad request", Detail = "The request body is invalid.", Status = StatusCodes.Status400BadRequest });
+            }
 
             try
             {   
