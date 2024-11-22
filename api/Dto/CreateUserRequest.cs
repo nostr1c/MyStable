@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using api.Repositories;
 using api.Services;
 
 
@@ -62,7 +61,7 @@ namespace api.Dto
 
                     return !exists;
                 }).WithMessage("ErrorEmailAlreadyExist");
-
+                
             RuleFor(x => x.Biography)
                 .MaximumLength(255).WithMessage("ErrorBiographyLengthRange");
 

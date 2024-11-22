@@ -3,7 +3,6 @@ using api.Models;
 using api.Dto;
 using Dapper;
 using api.Repositories.Exceptions;
-using Microsoft.Data.SqlClient;
 
 namespace api.Services
 {

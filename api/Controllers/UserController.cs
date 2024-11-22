@@ -3,7 +3,6 @@ using api.Models;
 using api.Dto;
 using api.Services;
 using api.Helpers;
-using Dapper;
 using api.Repositories.Exceptions;
 using FluentValidation.Results;
 using FluentValidation;
