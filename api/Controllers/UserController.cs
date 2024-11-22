@@ -44,7 +44,11 @@ namespace api.Controllers
             catch (RepositoryException repoEx)
             {
                 int status = StatusCodes.Status500InternalServerError;
-                return StatusCode(status, new ProblemDetails { Title = repoEx.Message, Status = status });
+                return StatusCode(status, new ProblemDetails
+                {
+                    Title = repoEx.Message,
+                    Status = status
+                });
             }
         }
 
@@ -65,10 +69,14 @@ namespace api.Controllers
 
                 return Ok(user);
             }
-            catch (RepositoryException repoEx)
+            catch (RepositoryException ex)
             {
                 int status = StatusCodes.Status500InternalServerError;
-                return StatusCode(status, new ProblemDetails { Title = repoEx.Message, Status = status });
+                return StatusCode(status, new ProblemDetails
+                {
+                    Title = ex.Message,
+                    Status = status
+                });
             }
         }
 
@@ -101,10 +109,15 @@ namespace api.Controllers
 
                 return CreatedAtAction(nameof(GetUserById), new {userId = user.UserID }, user);
             }
-            catch (RepositoryException repoEx)
+            catch (RepositoryException ex)
             {
                 int status = StatusCodes.Status500InternalServerError;
-                return StatusCode(status, new ProblemDetails { Title = repoEx.Message, Status = status });
+
+                return StatusCode(status, new ProblemDetails 
+                {
+                    Title = ex.Message,
+                    Status = status
+                });
             }
         }
     }
