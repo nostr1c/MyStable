@@ -86,7 +86,7 @@ namespace api.Controllers
             {   
                 User user = await _userRepository.CreateUserAsync(requestBody);
 
-                return CreatedAtAction(nameof(GetUserById), new { user.UserID }, user);
+                return CreatedAtAction(nameof(GetUserById), new {userId = user.UserID }, user);
             }
             catch (RepositoryException repoEx)
             {
