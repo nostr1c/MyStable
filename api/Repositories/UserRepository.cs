@@ -3,6 +3,7 @@ using api.Models;
 using api.Dto;
 using Dapper;
 using api.Repositories.Exceptions;
+using Microsoft.Data.SqlClient;
 
 namespace api.Services
 {
@@ -53,12 +54,39 @@ namespace api.Services
                             OUTPUT INSERTED.*
                             VALUES (@Firstname, @Lastname, @Username, @Email, @Biography, @Avatar)
                             ";
-
                 return await _connection.QuerySingleAsync<User>(query, request);
             }
             catch (Exception ex)
             {
                 throw new RepositoryException("Error creating user.", ex);
+            }
+        }
+
+        public async Task<bool> UsernameAlreadyExists(string username)
+        {
+            try
+            {
+                string query = @"SELECT 1 UserID FROM [User] WHERE Username = @Username";
+                var result = await _connection.ExecuteScalarAsync<int?>(query, new { UserName = username });
+                return result.HasValue;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Error checking username", ex);
+            }
+        }
+
+        public async Task<bool> EmailAlreadyExists(string email)
+        {
+            try
+            {
+                string query = @"SELECT 1 UserID FROM [User] WHERE Email = @Email";
+                var result = await _connection.ExecuteScalarAsync<int?>(query, new { Email = email });
+                return result.HasValue;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Error checking email", ex);
             }
         }
     }

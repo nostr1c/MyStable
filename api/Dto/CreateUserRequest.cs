@@ -1,4 +1,7 @@
 ﻿using FluentValidation;
+using api.Repositories;
+using api.Services;
+
 
 namespace api.Dto
 {
@@ -14,22 +17,59 @@ namespace api.Dto
 
     public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
     {
-        public CreateUserRequestValidator()
+        private readonly UserRepository _userRepository;
+        private readonly ILogger<CreateUserRequestValidator> _logger;
+
+        public CreateUserRequestValidator(UserRepository repository, ILogger<CreateUserRequestValidator> logger)
         {
+            _userRepository = repository;
+            _logger = logger;
+
             RuleFor(x => x.Firstname)
-                .NotEmpty()
-                .WithMessage("Firstname cannot be empty");
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("ErrorFirstnameCannotBeEmpty")
+            .Length(1, 50).WithMessage("ErrorFirstnameLengthRange");
+
             RuleFor(x => x.Lastname)
-                .NotEmpty()
-                .WithMessage("Lastname cannot be empty");
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("ErrorLastnameCannotBeEmpty")
+                .Length(1, 50).WithMessage("ErrorLastnameLengthRange");
+
             RuleFor(x => x.Username)
-                .NotEmpty()
-                .WithMessage("Username cannot be empty");
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("ErrorUsernameCannotBeEmpty")
+                .Length(3, 50).WithMessage("ErrorUsernameLengthRange")
+                .MustAsync(async (username, cancellation) =>
+                {
+                    bool exists = await _userRepository.UsernameAlreadyExists(username);
+
+                    _logger.LogInformation($"Username check: {username} exists: {exists}");
+
+                    return !exists;
+                }).WithMessage("ErrorUsernameAlreadyExist");
+
             RuleFor(x => x.Email)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
-                .WithMessage("Email cannot be empty")
+                    .WithMessage("ErrorEmailCannotBeEmpty")
                 .Matches(@"^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$")
-                .WithMessage("Email doesn't match an email format");
+                    .WithMessage("ErrorEmailFormat")
+                .MustAsync(async (email, cancellation) =>
+                {
+                    bool exists = await _userRepository.EmailAlreadyExists(email);
+
+                    _logger.LogInformation($"Email check: {email} exists: {exists}");
+
+                    return !exists;
+                }).WithMessage("ErrorEmailAlreadyExist");
+
+            RuleFor(x => x.Biography)
+                .MaximumLength(255).WithMessage("ErrorBiographyLengthRange");
+
+            RuleFor(x => x.Avatar)
+                .Must(x => Uri.TryCreate(x, UriKind.Absolute, out _))
+                .WithMessage("ErrorAvatarUrlFormat")
+                .When(x => !string.IsNullOrWhiteSpace(x.Avatar));
         }
     }
 }

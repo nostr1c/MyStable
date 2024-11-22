@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using api.Models;
 using api.Dto;
 using api.Services;
+using api.Helpers;
 using Dapper;
 using api.Repositories.Exceptions;
 using FluentValidation.Results;
+using FluentValidation;
 
 namespace api.Controllers
 {
@@ -14,17 +16,24 @@ namespace api.Controllers
     {
         private readonly ILogger<UserController> _logger;
         private readonly UserRepository _userRepository;
+        private readonly IServiceProvider _serviceProvider;
             
-        public UserController(ILogger<UserController> logger, UserRepository userRepository)
+        public UserController
+        (
+            ILogger<UserController> logger,
+            UserRepository userRepository,
+            IServiceProvider serviceProvider
+        )
         {
             _logger = logger;
             _userRepository = userRepository;
-        }
+            _serviceProvider = serviceProvider;
+        }   
 
         /// <summary>
         /// Get all users.
         /// </summary>
-        [HttpGet(Name = "GetUsers")]
+        [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
             try
@@ -43,7 +52,7 @@ namespace api.Controllers
         /// <summary>
         /// Get user by id.
         /// </summary>
-        [HttpGet("{userId:int}", Name = "GetUserById")]
+        [HttpGet("{userId:int}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
             try
@@ -67,23 +76,28 @@ namespace api.Controllers
         /// <summary>
         /// Create user.
         /// </summary>
-        [HttpPost(Name = "CreateUser")]
+        [HttpPost]
         public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserRequest requestBody)
         {
-            CreateUserRequestValidator validator = new CreateUserRequestValidator();
-            ValidationResult result = validator.Validate(requestBody);
+            var validator = _serviceProvider.GetRequiredService<IValidator<CreateUserRequest>>();
+
+            ValidationResult result = await validator.ValidateAsync(requestBody);
 
             if (!result.IsValid)
             {
-                foreach (var failure in result.Errors)
-                {
+                var validationErrors = ValidationErrorHelper.ExtractValidationErrors(result);
 
-                }
-                return BadRequest(new ProblemDetails { Title = "Bad request", Detail = "The request body is invalid.", Status = StatusCodes.Status400BadRequest });
+                return BadRequest(new ProblemDetails
+                { 
+                    Title = "Validation Error",
+                    Detail = "The request contains invalid data.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Extensions = { { "errors", validationErrors } }
+                });
             }
 
             try
-            {   
+            {
                 User user = await _userRepository.CreateUserAsync(requestBody);
 
                 return CreatedAtAction(nameof(GetUserById), new {userId = user.UserID }, user);

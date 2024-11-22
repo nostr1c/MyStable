@@ -1,4 +1,6 @@
+using api.Dto;
 using api.Services;
+using FluentValidation;
 using Microsoft.Data.SqlClient;
 using Microsoft.OpenApi.Models;
 using System.Data;
@@ -17,7 +19,12 @@ namespace api
             string connectionString = BuildConnectionString(builder.Configuration, builder.Environment);
 
             builder.Services.AddTransient<IDbConnection>(sc => new SqlConnection(connectionString));
+
+            builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
+
             builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<CreateUserRequestValidator>();
+
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
