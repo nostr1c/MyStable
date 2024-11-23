@@ -24,6 +24,7 @@ namespace api
         public void AddValidators()
         {
             _services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
+            _services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
         }
 
         public void AddDbConnection(IConfiguration configuration, IWebHostEnvironment environment)

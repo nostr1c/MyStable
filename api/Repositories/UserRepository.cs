@@ -9,10 +9,12 @@ namespace api.Services
     public class UserRepository
     {
         private readonly IDbConnection _connection;
+        private readonly ILogger<UserRepository> _logger;
 
-        public UserRepository(IDbConnection connection)
+        public UserRepository(IDbConnection connection, ILogger<UserRepository> logger)
         {
             _connection = connection;
+            _logger = logger;
         }   
 
         public async Task<IEnumerable<User>> GetUsersAsync()
@@ -58,6 +60,27 @@ namespace api.Services
             catch (Exception ex)
             {
                 throw new RepositoryException("Error creating user.", ex);
+            }
+        }
+
+        public async Task<User> UpdateUserAsync(UpdateUserRequest request)
+        {
+            try
+            {
+                string query = @"UPDATE [USER] SET Firstname = @Firstname,
+                                            Lastname = @Lastname,
+                                            Biography = @Biography,
+                                            Avatar = @Avatar
+                                OUTPUT INSERTED.*
+                                WHERE UserID = @Id";
+
+                var result = await _connection.QuerySingleAsync<User>(query, request);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Error updating user.", ex);
             }
         }
 

@@ -120,5 +120,46 @@ namespace api.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Update user.
+        /// </summary>
+        [HttpPut]
+        public async Task<ActionResult<User>> UpdateUser([FromBody] UpdateUserRequest requestBody)
+        {
+            var validator = _serviceProvider.GetRequiredService<IValidator<UpdateUserRequest>>();
+
+            ValidationResult result = await validator.ValidateAsync(requestBody);
+
+            if (!result.IsValid)
+            {
+                var validationErrors = ValidationErrorHelper.ExtractValidationErrors(result);
+
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "Validation Error",
+                    Detail = "The request contains invalid data.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Extensions = { { "errors", validationErrors } }
+                });
+            }
+
+            try
+            {
+                User user = await _userRepository.UpdateUserAsync(requestBody);
+
+                return Ok(user);
+            }
+            catch (RepositoryException ex)
+            {
+                int status = StatusCodes.Status500InternalServerError;
+
+                return StatusCode(status, new ProblemDetails
+                {
+                    Title = ex.Message,
+                    Status = status
+                });
+            }
+        }
     }
 }
