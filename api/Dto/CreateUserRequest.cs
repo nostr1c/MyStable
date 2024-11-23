@@ -27,17 +27,17 @@ namespace api.Dto
             RuleFor(x => x.Firstname)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("ErrorFirstnameCannotBeEmpty")
-            .Length(1, 50).WithMessage("ErrorFirstnameLengthRange");
+            .Length(1, 50).WithMessage("ErrorFirstnameLength");
 
             RuleFor(x => x.Lastname)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("ErrorLastnameCannotBeEmpty")
-                .Length(1, 50).WithMessage("ErrorLastnameLengthRange");
+                .Length(1, 50).WithMessage("ErrorLastnameLength");
 
             RuleFor(x => x.Username)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("ErrorUsernameCannotBeEmpty")
-                .Length(3, 50).WithMessage("ErrorUsernameLengthRange")
+                .Length(3, 50).WithMessage("ErrorUsernameLength")
                 .MustAsync(async (username, cancellation) =>
                 {
                     bool exists = await _userRepository.UsernameAlreadyExists(username);
