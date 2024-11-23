@@ -9,8 +9,8 @@
         public string Email { get; set; }
         public string Biography { get; set; }
         public string Created_At { get; set; }
-        public string Removed_At { get; set; }
         public string Avatar { get; set; }
+        public int IsDeleted { get; set; }
     }
 }
 

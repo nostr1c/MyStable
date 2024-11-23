@@ -31,7 +31,6 @@ namespace api.Services
             {
                 throw new RepositoryException("Error fetching users.", ex);
             }
-
         }
 
         public async Task<User?> GetUserByIdAsync(int userID)
@@ -75,6 +74,24 @@ namespace api.Services
                                 WHERE UserID = @Id";
 
                 var result = await _connection.QuerySingleAsync<User>(query, request);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Error updating user.", ex);
+            }
+        }
+
+        public async Task<User> DeleteUserAsync(int id)
+        {
+            try
+            {
+                string query = @"UPDATE [USER] SET IsDeleted = 1
+                                OUTPUT INSERTED.*
+                                WHERE UserID = @Id";
+
+                var result = await _connection.QuerySingleAsync<User>(query, new { Id = id });
 
                 return result;
             }

@@ -161,5 +161,36 @@ namespace api.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Delete a user
+        /// </summary>
+        [HttpDelete]
+        public async Task<ActionResult<User>> DeleteUser([FromBody] int userId)
+        {
+            try
+            {
+                var user = await _userRepository.GetUserByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound(new ProblemDetails { Title = $"Could not find user with ID: {userId}", Status = StatusCodes.Status404NotFound });
+                }
+
+                user = await _userRepository.DeleteUserAsync(userId);
+
+                return Ok(user);
+            }
+            catch (RepositoryException ex)
+            {
+                int status = StatusCodes.Status500InternalServerError;
+
+                return StatusCode(status, new ProblemDetails
+                {
+                    Title = ex.Message,
+                    Status = status
+                });
+            }
+        }
     }
 }

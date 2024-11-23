@@ -16,8 +16,8 @@ CREATE TABLE [User] (
 	Email NVARCHAR(255) UNIQUE,
 	Biography NVARCHAR(255),
 	Created_At DATETIME DEFAULT GetDate(),
-	Removed_At DATETIME,
-	Avatar NVARCHAR(255)
+	Avatar NVARCHAR(255),
+	IsDeleted BIT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Stable (
